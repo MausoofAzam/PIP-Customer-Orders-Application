@@ -1,13 +1,14 @@
-package com.snort.exception;
+package com.snort.exception.global;
 
+import com.snort.exception.ex.CustomerCreationException;
+import com.snort.exception.ex.CustomerNotFoundException;
+import com.snort.exception.ex.InvalidPageRequestException;
+import com.snort.exception.response.CustomerErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import java.time.LocalDateTime;
 
 @RestControllerAdvice
 @Slf4j

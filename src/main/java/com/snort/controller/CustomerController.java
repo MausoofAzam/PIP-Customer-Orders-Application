@@ -1,8 +1,7 @@
 package com.snort.controller;
 
 import com.snort.entity.Customer;
-import com.snort.exception.CustomerCreationException;
-import com.snort.exception.InvalidPageRequestException;
+import com.snort.exception.ex.CustomerCreationException;
 import com.snort.request.CustomerRequest;
 import com.snort.service.CustomerService;
 import lombok.extern.slf4j.Slf4j;

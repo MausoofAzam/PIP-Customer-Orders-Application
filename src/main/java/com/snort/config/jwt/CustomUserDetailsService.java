@@ -1,4 +1,4 @@
-package com.snort.config;
+package com.snort.config.jwt;
 
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;

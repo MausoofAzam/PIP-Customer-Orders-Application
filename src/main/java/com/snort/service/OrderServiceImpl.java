@@ -2,9 +2,9 @@ package com.snort.service;
 
 import com.snort.entity.Customer;
 import com.snort.entity.OrderedItem;
-import com.snort.exception.CustomerNotFoundException;
-import com.snort.exception.OrderDeleteException;
-import com.snort.exception.OrderNotFoundException;
+import com.snort.exception.ex.CustomerNotFoundException;
+import com.snort.exception.ex.OrderDeleteException;
+import com.snort.exception.ex.OrderNotFoundException;
 import com.snort.repository.CustomerRepository;
 import com.snort.repository.OrderedItemRepository;
 import com.snort.request.OrderedItemRequest;

@@ -3,6 +3,7 @@ package com.snort.config;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
@@ -19,6 +20,7 @@ import static com.snort.enums.Constants.*;
 @Slf4j
 @EnableWebMvc
 @EnableSwagger2
+@Order(1)
 public class SwaggerConfigue {
     //http://localhost:8181/swagger-ui/index.html#/
     ApiInfo getApiInfo() {
@@ -35,8 +37,7 @@ public class SwaggerConfigue {
         log.info("Api Build Successfully..Docket Bean is Created");
         return new Docket(DocumentationType.SWAGGER_2).apiInfo(getApiInfo()).forCodeGeneration(true)
                 .select()
-                .apis(RequestHandlerSelectors.any())
+                .apis(RequestHandlerSelectors.basePackage("com.snort.controller"))
                 .paths(PathSelectors.any()).build();
     }
-
 }

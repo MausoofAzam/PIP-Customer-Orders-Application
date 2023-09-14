@@ -1,4 +1,4 @@
-package com.snort.exception;
+package com.snort.exception.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;

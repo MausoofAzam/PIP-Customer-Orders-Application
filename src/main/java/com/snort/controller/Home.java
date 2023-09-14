@@ -1,6 +1,6 @@
 package com.snort.controller;
 
-import com.snort.config.CustomUserDetailsService;
+import com.snort.config.jwt.CustomUserDetailsService;
 import com.snort.config.helper.JwtUtil;
 import com.snort.config.model.JwtRequest;
 import com.snort.config.model.JwtResponse;

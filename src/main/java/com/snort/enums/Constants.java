@@ -16,7 +16,9 @@ public enum Constants {
     MAUSOOF_AZAM("Mausoof Azam"),
     WEBSITE("www.pip.in"),
     EMAIL("azam@gmail.com"),
-    ERROR_OCCURRED("an error occurred while deleting customer order")
+    ERROR_OCCURRED("an error occurred while deleting customer order"),
+    NUMBER_EXISTS("Phone Number already exist"),
+    EMAIL_EXISTS("Email already Exist")
     ;
 
 

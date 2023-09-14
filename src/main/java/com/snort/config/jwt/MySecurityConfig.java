@@ -1,5 +1,8 @@
-package com.snort.config;
+package com.snort.config.jwt;
 
+import com.snort.config.jwt.CustomUserDetailsService;
+import com.snort.config.jwt.JwtAuthenticationEntryPoint;
+import com.snort.config.jwt.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -44,14 +47,38 @@ public class MySecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-       auth.userDetailsService(customUserDetailsService);
+        auth.userDetailsService(customUserDetailsService);
     }
+
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return NoOpPasswordEncoder.getInstance();
     }
+
     @Bean
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
     }
+
+//    @Bean
+//    public SecurityConfiguration security() {
+//        return SecurityConfigurationBuilder.builder()
+//                .clientId("sample-client-id")
+//                .clientSecret("sample-client-secret")
+//                .scopeSeparator(" ")
+//                .useBasicAuthenticationWithAccessCodeGrant(true)
+//                .build();
+//    }
+
+//    @Bean
+//    public SecurityContext securityContext() {
+//        return SecurityContext.builder()
+//                .securityReferences(Arrays.asList(new SecurityReference("JWT", authorizationScopes())))
+//                .forPaths(PathSelectors.any())
+//                .build();
+//    }
+
+//    private List<AuthorizationScope> authorizationScopes() {
+//        return Collections.singletonList(new AuthorizationScope("read", "read access"));
+//    }
 }
