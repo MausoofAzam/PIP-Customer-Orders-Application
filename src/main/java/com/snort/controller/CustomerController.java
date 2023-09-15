@@ -35,13 +35,13 @@ public class CustomerController {
      * @throws CustomerCreationException it occurs when customer unable to create
      */
     @PostMapping("/create")
-    public ResponseEntity<String> createCustomerWithOrder(@Valid @RequestBody(required = false) CustomerRequest customerRequest) {
+    public ResponseEntity<?> createCustomerWithOrder(@Valid @RequestBody(required = false) CustomerRequest customerRequest) {
         try {
             if (customerRequest  == null) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("RequestBody is missing");
             }
-            customerService.createCustomerWithOrder(customerRequest);
-            return ResponseEntity.status(HttpStatus.CREATED).body("Customer and ordered items created successfully.");
+            Customer customerWithOrder = customerService.createCustomerWithOrder(customerRequest);
+            return ResponseEntity.status(HttpStatus.CREATED).body(customerWithOrder);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ERROR_CREATING_CUSTOMER.getValue() + e.getMessage());
         }

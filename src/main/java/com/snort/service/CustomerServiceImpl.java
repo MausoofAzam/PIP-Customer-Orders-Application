@@ -2,16 +2,14 @@ package com.snort.service;
 
 import com.snort.entity.Customer;
 import com.snort.entity.OrderedItem;
-import com.snort.exception.ex.CustomerCreationException;
-import com.snort.exception.ex.CustomerNotFoundException;
-import com.snort.exception.ex.EmailExistException;
-import com.snort.exception.ex.PhoneNumberExistException;
+import com.snort.exception.ex.*;
 import com.snort.repository.CustomerRepository;
 import com.snort.repository.OrderedItemRepository;
 import com.snort.request.CustomerRequest;
 import com.snort.request.OrderedItemRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -43,23 +41,24 @@ public class CustomerServiceImpl implements CustomerService {
      * @throws CustomerCreationException it occurs when customer unable to create
      */
     public Customer createCustomerWithOrder(CustomerRequest customerRequest) {
-        // Create a Customer entity from the CustomerRequest DTO
         try {
 //                    checking for unique Email and phone number in the DB
-        boolean isPhoneNumberExist = customerRepository.existsByPhoneNumber(customerRequest.getPhoneNumber());
-        log.info("phone number exist", isPhoneNumberExist);
-        System.out.println("exist phone: " + isPhoneNumberExist);
-        if (isPhoneNumberExist) {
-            log.error("Phone number already exists");
-            throw new PhoneNumberExistException(NUMBER_EXISTS.getValue());
-        }
-        boolean isEmailExist = customerRepository.existsByEmail(customerRequest.getEmail());
-        if (isEmailExist) {
-            log.error("Email  already exists");
-            throw new EmailExistException(EMAIL_EXISTS.getValue());
-        }
-
+            boolean isPhoneNumberExist = customerRepository.existsByPhoneNumber(customerRequest.getPhoneNumber());
+            log.info("phone number exist", isPhoneNumberExist);
+            System.out.println("exist phone: " + isPhoneNumberExist);
+            if (isPhoneNumberExist) {
+                log.error("Phone number already exists");
+                throw new PhoneNumberExistException(NUMBER_EXISTS.getValue());
+            }
+            boolean isEmailExist = customerRepository.existsByEmail(customerRequest.getEmail());
+            if (isEmailExist) {
+                log.error("Email  already exists");
+                throw new EmailExistException(EMAIL_EXISTS.getValue());
+            }
+            Long nextCustomerId = findNextCustomerId();
             Customer customer = new Customer();
+            //getting the updated customer id
+            customer.setCustomerId(nextCustomerId);
             customer.setName(customerRequest.getName());
             customer.setEmail(customerRequest.getEmail());
             customer.setPhoneNumber(customerRequest.getPhoneNumber());
@@ -67,7 +66,7 @@ public class CustomerServiceImpl implements CustomerService {
             customer.setRegistrationDate(Instant.now());
 
             // Create OrderedItem entities from the OrderedItemRequest DTOs
-            if (customerRequest.getOrders() !=null){
+            if (customerRequest.getOrders() != null) {
                 List<OrderedItem> orderedItems = new ArrayList<>();
                 for (OrderedItemRequest orderedItemRequest : customerRequest.getOrders()) {
                     OrderedItem orderedItem = new OrderedItem();
@@ -90,6 +89,14 @@ public class CustomerServiceImpl implements CustomerService {
         }
 
     }
+
+    private Long findNextCustomerId() {
+        Long maxCustomerId = customerRepository.findMaxCustomerId();
+
+        //if no customer exists, start with id 1; otherwise increment the maximum id
+        return maxCustomerId != null ? maxCustomerId + 1 : 1L;
+    }
+
     /**
      * @return list of customer information
      */
@@ -101,6 +108,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     //    pagination
+
     /**
      * @param pageable
      * @return returns List of Customer with page size 10
@@ -123,37 +131,59 @@ public class CustomerServiceImpl implements CustomerService {
             throw new CustomerNotFoundException(CUSTOMER_NOT_FOUND.getValue() + customerId);
         }
     }
+
     /**
      * @param customerId id of the customer
      * @throws CustomerNotFoundException if the customer with given ID not found
      */
+
     @Override
     public void deleteCustomerById(Long customerId) {
-        if (customerRepository.existsById(customerId)) {
+//       find the next available customer id
+
+        Optional<Long> maxCustomerIdOptional = Optional.ofNullable(customerRepository.findMaxCustomerId());
+        Long nextAvailableCustomerId = maxCustomerIdOptional.orElse(1L);
+        //deleting the customer
+
+        try {
             customerRepository.deleteById(customerId);
-        } else {
-            throw new CustomerNotFoundException(CUSTOMER_NOT_FOUND.getValue() + customerId);
+            //reassigning the deleted id to a new customer
+            Optional<Customer> nextCustomerOptional = customerRepository.findById(nextAvailableCustomerId);
+            if (nextCustomerOptional.isPresent()) {
+                Customer nextCustomer = nextCustomerOptional.get();
+                nextCustomer.setCustomerId(customerId);
+                customerRepository.save(nextCustomer);
+
+            } else {
+                throw new CustomerNotFoundException(CUSTOMER_NOT_FOUND.getValue());
+            }
+        } catch (EmptyResultDataAccessException e) {
+            throw new CustomerNotFoundException(CUSTOMER_NOT_FOUND.getValue() + " " +customerId);
+        } catch (Exception e) {
+            throw new CustomerReassignmentException("Error reassigning customer ID: " + e.getMessage());
         }
     }
-    /**
-     * @param customerId      id of the customer
-     * @param customerRequest details of the customer
-     * @return customer details of  the customer entity
-     * @throws CustomerNotFoundException it occurs when customer not found in the database
-     */
-    @Override
-    public Customer updateCustomer(Long customerId, CustomerRequest customerRequest) {
-        Optional<Customer> optionalCustomer = customerRepository.findById(customerId);
-        if (!optionalCustomer.isPresent()){
-            throw new CustomerNotFoundException(CUSTOMER_NOT_FOUND.getValue()+customerId);
+
+
+        /**
+         * @param customerId      id of the customer
+         * @param customerRequest details of the customer
+         * @return customer details of  the customer entity
+         * @throws CustomerNotFoundException it occurs when customer not found in the database
+         */
+        @Override
+        public Customer updateCustomer (Long customerId, CustomerRequest customerRequest){
+            Optional<Customer> optionalCustomer = customerRepository.findById(customerId);
+            if (!optionalCustomer.isPresent()) {
+                throw new CustomerNotFoundException(CUSTOMER_NOT_FOUND.getValue() + customerId);
+            }
+            Customer existingCustomer = optionalCustomer.get();
+            existingCustomer.setName(customerRequest.getName());
+            existingCustomer.setEmail(customerRequest.getEmail());
+            existingCustomer.setPhoneNumber(customerRequest.getPhoneNumber());
+            existingCustomer.setEmail(existingCustomer.getEmail());
+
+            return customerRepository.save(existingCustomer);
         }
-        Customer existingCustomer =optionalCustomer.get();
-        existingCustomer.setName(customerRequest.getName());
-        existingCustomer.setEmail(customerRequest.getEmail());
-        existingCustomer.setPhoneNumber(customerRequest.getPhoneNumber());
-        existingCustomer.setEmail(existingCustomer.getEmail());
 
-        return customerRepository.save(existingCustomer);
     }
-
-}

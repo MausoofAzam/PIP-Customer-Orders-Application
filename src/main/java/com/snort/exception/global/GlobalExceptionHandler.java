@@ -2,6 +2,7 @@ package com.snort.exception.global;
 
 import com.snort.exception.ex.CustomerCreationException;
 import com.snort.exception.ex.CustomerNotFoundException;
+import com.snort.exception.ex.CustomerReassignmentException;
 import com.snort.exception.ex.InvalidPageRequestException;
 import com.snort.exception.response.CustomerErrorResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -42,9 +43,17 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(CustomerNotFoundException.class)
     public ResponseEntity<CustomerErrorResponse> resourceNotFoundException(CustomerNotFoundException ex) {
-    log.error(ex.getMessage());
-    CustomerErrorResponse response = new CustomerErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), null);
-    return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-}
+        log.error(ex.getMessage());
+        CustomerErrorResponse response = new CustomerErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), null);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+
+    @ExceptionHandler(CustomerReassignmentException.class)
+    public ResponseEntity<CustomerErrorResponse> handleCustomerReassignmentException(CustomerNotFoundException ex) {
+        log.error(ex.getMessage());
+        CustomerErrorResponse response = new CustomerErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), null);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
 
 }
