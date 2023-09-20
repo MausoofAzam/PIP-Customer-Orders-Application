@@ -124,10 +124,10 @@ public class CustomerServiceImpl implements CustomerService {
      */
     @Override
     public Customer getCustomerById(Long customerId) {
-        try {
-            Optional<Customer> customer = customerRepository.findById(customerId);
+        Optional<Customer> customer = customerRepository.findById(customerId);
+        if (customer.isPresent()) {
             return customer.get();
-        } catch (Exception e) {
+        } else {
             throw new CustomerNotFoundException(CUSTOMER_NOT_FOUND.getValue() + customerId);
         }
     }
@@ -156,25 +156,25 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
 
-        /**
-         * @param customerId      id of the customer
-         * @param customerRequest details of the customer
-         * @return customer details of  the customer entity
-         * @throws CustomerNotFoundException it occurs when customer not found in the database
-         */
-        @Override
-        public Customer updateCustomer (Long customerId, CustomerRequest customerRequest){
-            Optional<Customer> optionalCustomer = customerRepository.findById(customerId);
-            if (!optionalCustomer.isPresent()) {
-                throw new CustomerNotFoundException(CUSTOMER_NOT_FOUND.getValue() + customerId);
-            }
-            Customer existingCustomer = optionalCustomer.get();
-            existingCustomer.setName(customerRequest.getName());
-            existingCustomer.setEmail(customerRequest.getEmail());
-            existingCustomer.setPhoneNumber(customerRequest.getPhoneNumber());
-            existingCustomer.setEmail(existingCustomer.getEmail());
-
-            return customerRepository.save(existingCustomer);
+    /**
+     * @param customerId      id of the customer
+     * @param customerRequest details of the customer
+     * @return customer details of  the customer entity
+     * @throws CustomerNotFoundException it occurs when customer not found in the database
+     */
+    @Override
+    public Customer updateCustomer(Long customerId, CustomerRequest customerRequest) {
+        Optional<Customer> optionalCustomer = customerRepository.findById(customerId);
+        if (!optionalCustomer.isPresent()) {
+            throw new CustomerNotFoundException(CUSTOMER_NOT_FOUND.getValue() + customerId);
         }
+        Customer existingCustomer = optionalCustomer.get();
+        existingCustomer.setName(customerRequest.getName());
+        existingCustomer.setEmail(customerRequest.getEmail());
+        existingCustomer.setPhoneNumber(customerRequest.getPhoneNumber());
+        existingCustomer.setEmail(existingCustomer.getEmail());
 
+        return customerRepository.save(existingCustomer);
     }
+
+}

@@ -85,14 +85,12 @@ class CustomerServiceImplTest {
     }
     @Test
     void testCreateCustomerWithOrderAndOrderedItems() {
-        // Mock customer request
         CustomerRequest customerRequest = new CustomerRequest();
         customerRequest.setName("test");
         customerRequest.setEmail("test@abc.com");
         customerRequest.setPhoneNumber("1234567890");
         customerRequest.setAddress("Bangalore");
 
-        // Mock ordered item request
         OrderedItemRequest orderedItemRequest1 = new OrderedItemRequest();
         orderedItemRequest1.setProductName("Product1");
         orderedItemRequest1.setQuantity(2);
@@ -109,7 +107,6 @@ class CustomerServiceImplTest {
 
         customerRequest.setOrders(orderedItemRequests);
 
-        // Mock customer entity
         Customer customerEntity = new Customer();
         customerEntity.setCustomerId(1L);
         customerEntity.setName(customerRequest.getName());
@@ -117,7 +114,6 @@ class CustomerServiceImplTest {
         customerEntity.setPhoneNumber(customerRequest.getPhoneNumber());
         customerEntity.setAddress(customerRequest.getAddress());
 
-        // Mock ordered item entities
         List<OrderedItem> orderedItemEntities = new ArrayList<>();
         for (OrderedItemRequest orderedItemRequest : orderedItemRequests) {
             OrderedItem orderedItemEntity = new OrderedItem();
@@ -162,29 +158,22 @@ class CustomerServiceImplTest {
         Long customerId = 1L;
         customer.setCustomerId(customerId);
 
-        // Mocking behavior of customerRepository.findById
         when(customerRepository.findById(customerId)).thenReturn(Optional.of(customer));
 
-        // Calling the method to test
         Customer result = customerService.getCustomerById(customerId);
 
-        // Assertions
         assertNotNull(result);
         assertEquals(customerId, result.getCustomerId());
 
-        // Verifying the behavior
         verify(customerRepository, times(1)).findById(customerId);
     }
 
     @Test
     void deleteCustomerByIdReturnNothing() {
 
-        // Mock the behavior of customerRepository
-        //let max id is 10
         when(customerRepository.findMaxCustomerId()).thenReturn(10L);
         when(customerRepository.findById(anyLong())).thenReturn(Optional.of(new Customer()));
 
-        // Calling the method to test
         customerService.deleteCustomerById(5L);
         verify(customerRepository).deleteById(5L);
 
@@ -192,7 +181,6 @@ class CustomerServiceImplTest {
 
     @Test
     void updateCustomerReturnsCustomer() {
-        // Create a mock CustomerRequest and an existing customer
         CustomerRequest customerRequest = new CustomerRequest();
         customerRequest.setName("Test");
         customerRequest.setEmail("test@abd.com");
@@ -204,16 +192,11 @@ class CustomerServiceImplTest {
         existingCustomer.setEmail("test2@abc.com");
         existingCustomer.setPhoneNumber("9876543210");
 
-        // Mocking the behavior of customerRepository
         when(customerRepository.findById(1L)).thenReturn(Optional.of(existingCustomer));
         when(customerRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-        // Calling the method to test
         Customer updatedCustomer = customerService.updateCustomer(1L, customerRequest);
-
-        // Assertions
         assertEquals("1234567890", updatedCustomer.getPhoneNumber());
-
         verify(customerRepository).save(any());
     }
 
@@ -227,7 +210,6 @@ class CustomerServiceImplTest {
 
     @Test
     void findAllCustomerReturnCustomerList() {
-        // Create some mock customers
         Customer customer1 = new Customer();
         customer1.setCustomerId(1L);
         customer1.setName("Customer 1");
@@ -250,7 +232,6 @@ class CustomerServiceImplTest {
 
     @Test
      void testFindAllCustomerOrder() {
-        // Create some mock customers
         Customer customer1 = new Customer();
         customer1.setCustomerId(1L);
         customer1.setName("Customer 1");
@@ -259,16 +240,12 @@ class CustomerServiceImplTest {
         customer2.setCustomerId(2L);
         customer2.setName("Customer 2");
 
-        // Create a mock Page
         Page<Customer> mockPage = new PageImpl<>(Arrays.asList(customer1, customer2));
 
-        // Mock the behavior of customerRepository
         when(customerRepository.findAll(any(Pageable.class))).thenReturn(mockPage);
 
-        // Call the service method
         Page<Customer> result = customerService.findAllCustomerOrder(PageRequest.of(0, 10));
 
-        // Verify the result
         assertNotNull(result);
         assertEquals(2, result.getTotalElements());
         assertEquals("Customer 1", result.getContent().get(0).getName());

@@ -36,15 +36,11 @@ public class CustomerController {
      */
     @PostMapping("/create")
     public ResponseEntity<?> createCustomerWithOrder(@Valid @RequestBody(required = false) CustomerRequest customerRequest) {
-        try {
             if (customerRequest  == null) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("RequestBody is missing");
             }
             Customer customerWithOrder = customerService.createCustomerWithOrder(customerRequest);
             return ResponseEntity.status(HttpStatus.CREATED).body(customerWithOrder);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ERROR_CREATING_CUSTOMER.getValue() + e.getMessage());
-        }
     }
 
     /**
@@ -55,7 +51,6 @@ public class CustomerController {
     public ResponseEntity<Customer> getCustomerDetailsById(@PathVariable Long customerId) {
         log.info("CustomerId : {} ", customerId);
         Customer customerDetails = customerService.getCustomerById(customerId);
-        log.info("CustomerDetails : {}", customerDetails);
         return new ResponseEntity<>(customerDetails, HttpStatus.OK);
     }
     /**

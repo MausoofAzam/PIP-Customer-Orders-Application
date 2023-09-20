@@ -15,6 +15,13 @@
 	<description>Demo project for Spring Boot</description>
 	<properties>
 		<java.version>11</java.version>
+		<sonar.exclusions>
+			**/com/snort/config/**,
+			**/com/snort/entity/**,
+			**/com/snort/exception/**,
+			**/com/snort/request/**,
+			**/CustomerOrderManagement.java
+		</sonar.exclusions>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -87,6 +94,41 @@
 
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.5</version>
+				<configuration>
+					<excludes>
+						<exclude>com/snort/entity/*.class</exclude>
+						<exclude>com/snort/exception/*.class</exclude>
+						<exclude>com/snort/exception/*.class</exclude>
+						<exclude>com/snort/config/ex/*.class</exclude>
+						<exclude>com/snort/config/global/*.class</exclude>
+						<exclude>com/snort/config/response/*.class</exclude>
+						<exclude>com/snort/request/*.class</exclude>
+						<exclude>**/snort/CustomerOrderManagement.class</exclude>
+					</excludes>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+			</plugin>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
