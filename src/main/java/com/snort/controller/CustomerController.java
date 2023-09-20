@@ -49,15 +49,15 @@ public class CustomerController {
 
     /**
      * @param customerId
-     * @return customer details
+     * @return customer
      */
-    @GetMapping("customerId")
-    public ResponseEntity<Customer> getCustomerById(@PathVariable Long customerId) {
-        log.info("Customer ID : {}", customerId);
-        Customer customer = customerService.getCustomerById(customerId);
-        return new ResponseEntity<>(customer, HttpStatus.OK);
+    @GetMapping("/{customerId}")
+    public ResponseEntity<Customer> getCustomerDetailsById(@PathVariable Long customerId) {
+        log.info("CustomerId : {} ", customerId);
+        Customer customerDetails = customerService.getCustomerById(customerId);
+        log.info("CustomerDetails : {}", customerDetails);
+        return new ResponseEntity<>(customerDetails, HttpStatus.OK);
     }
-
     /**
      * @return list of customer with orders
      */
@@ -84,18 +84,6 @@ public class CustomerController {
         return customerService.findAllCustomerOrder(pageable);
     }
 
-    /**
-     * @param customerId
-     * @return customer
-     */
-    @GetMapping("/{customerId}")
-    public ResponseEntity<Customer> getCustomerDetailsById(@PathVariable Long customerId) {
-        log.info("CustomerId : {} ", customerId);
-
-        Customer customerDetails = customerService.getCustomerById(customerId);
-        log.info("CustomerDetails : {}", customerDetails);
-        return new ResponseEntity<>(customerDetails, HttpStatus.OK);
-    }
 
     /**
      * @param customerId

@@ -9,7 +9,6 @@ import com.snort.repository.CustomerRepository;
 import com.snort.repository.OrderedItemRepository;
 import com.snort.request.OrderedItemRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -20,11 +19,13 @@ import static com.snort.enums.Constants.*;
 @Service
 @Slf4j
 public class OrderServiceImpl implements OrderService {
-    @Autowired
-    private OrderedItemRepository orderedItemRepository;
-    @Autowired
-    private CustomerRepository customerRepository;
+    private final OrderedItemRepository orderedItemRepository;
+    private final CustomerRepository customerRepository;
 
+    public OrderServiceImpl(OrderedItemRepository orderedItemRepository, CustomerRepository customerRepository) {
+        this.orderedItemRepository = orderedItemRepository;
+        this.customerRepository = customerRepository;
+    }
 
     /**
      * @param customerId  id of the customer

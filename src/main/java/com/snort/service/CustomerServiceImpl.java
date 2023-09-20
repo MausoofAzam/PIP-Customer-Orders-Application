@@ -139,28 +139,19 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public void deleteCustomerById(Long customerId) {
-//       find the next available customer id
 
         Optional<Long> maxCustomerIdOptional = Optional.ofNullable(customerRepository.findMaxCustomerId());
+        System.out.println("maxCustomerIdOptional" + maxCustomerIdOptional);
         Long nextAvailableCustomerId = maxCustomerIdOptional.orElse(1L);
-        //deleting the customer
 
-        try {
-            customerRepository.deleteById(customerId);
-            //reassigning the deleted id to a new customer
-            Optional<Customer> nextCustomerOptional = customerRepository.findById(nextAvailableCustomerId);
-            if (nextCustomerOptional.isPresent()) {
-                Customer nextCustomer = nextCustomerOptional.get();
-                nextCustomer.setCustomerId(customerId);
-                customerRepository.save(nextCustomer);
+        customerRepository.deleteById(customerId);
 
-            } else {
-                throw new CustomerNotFoundException(CUSTOMER_NOT_FOUND.getValue());
-            }
-        } catch (EmptyResultDataAccessException e) {
-            throw new CustomerNotFoundException(CUSTOMER_NOT_FOUND.getValue() + " " +customerId);
-        } catch (Exception e) {
-            throw new CustomerReassignmentException("Error reassigning customer ID: " + e.getMessage());
+        // Reassigning the deleted ID to a new customer
+        Optional<Customer> nextCustomerOptional = customerRepository.findById(nextAvailableCustomerId);
+        if (nextCustomerOptional.isPresent()) {
+            Customer nextCustomer = nextCustomerOptional.get();
+            nextCustomer.setCustomerId(customerId);
+            customerRepository.save(nextCustomer);
         }
     }
 
