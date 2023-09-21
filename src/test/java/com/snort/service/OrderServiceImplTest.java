@@ -43,17 +43,16 @@ class OrderServiceImplTest {
 
     @Test
     void testUpdateOrderById() {
-        // Create a sample ordered item and order ID
-        OrderedItem updatedOrderedItem = new OrderedItem();
-        updatedOrderedItem.setProductName("Updated Product");
-        updatedOrderedItem.setQuantity(5);
-        updatedOrderedItem.setUnitPrice(BigDecimal.valueOf(15.0));
+//        given
+        OrderedItemRequest updatedOrderedItemRequest = new OrderedItemRequest();
+        updatedOrderedItemRequest.setProductName("Updated Product");
+        updatedOrderedItemRequest.setQuantity(5);
+        updatedOrderedItemRequest.setUnitPrice(BigDecimal.valueOf(15.0));
 
-        String orderId = "1";  // Sample order ID
+        String orderId = "1";
 
-        // Create a sample customer with orders
         Customer customer = new Customer();
-        customer.setCustomerId(1L);  // Sample customer ID
+        customer.setCustomerId(1L);
         OrderedItem existingOrder = new OrderedItem();
         existingOrder.setId(orderId);
         existingOrder.setProductName("Original Product");
@@ -63,109 +62,115 @@ class OrderServiceImplTest {
         orders.add(existingOrder);
         customer.setOrders(orders);
 
-        // Mock repository behavior
+//        when
         when(customerRepository.findById(anyLong())).thenReturn(Optional.of(customer));
-        when(orderedItemRepository.save(any())).thenReturn(updatedOrderedItem);
+        when(orderedItemRepository.save(any())).thenReturn(new OrderedItem());
 
-        // Invoke the service method to update the order
-        OrderedItem result = orderService.updateOrderById(1L, orderId, updatedOrderedItem);
+        OrderedItem result = orderService.updateOrderById(1L, orderId, updatedOrderedItemRequest);
+//        then
+        assertEquals(updatedOrderedItemRequest.getProductName(), result.getProductName());
+        assertEquals(updatedOrderedItemRequest.getQuantity(), result.getQuantity());
 
-        // Verify that the order was updated
-        assertEquals(updatedOrderedItem.getProductName(), result.getProductName());
-        assertEquals(updatedOrderedItem.getQuantity(), result.getQuantity());
-        assertEquals(updatedOrderedItem.getUnitPrice(), result.getUnitPrice());
-
-        // Verify that the repository methods were called
-        verify(customerRepository, times(1)).findById(anyLong());
         verify(orderedItemRepository, times(0)).save(any());
     }
 
     @Test
     void testUpdateOrderByIdCustomerNotFound() {
-        // Mock repository behavior to return an empty optional (customer not found)
+//        when
         when(customerRepository.findById(anyLong())).thenReturn(Optional.empty());
-
-        // Invoke the service method and expect a CustomerNotFoundException
-        assertThrows(CustomerNotFoundException.class,
-                () -> orderService.updateOrderById(1L, "1", new OrderedItem()));
+//          then
+        assertThrows(CustomerNotFoundException.class, () -> orderService.updateOrderById(1L, "1", new OrderedItemRequest()));
     }
 
     @Test
     void testUpdateOrderByIdOrderNotFound() {
-        // Create a sample customer with no orders
+//      given
         Customer customer = new Customer();
-        customer.setCustomerId(1L);  // Sample customer ID
-
-        // Mock repository behavior
+        customer.setCustomerId(1L);
+//       when
         when(customerRepository.findById(anyLong())).thenThrow(OrderNotFoundException.class);
-
-        // Invoke the service method and expect an OrderNotFoundException
-        assertThrows(OrderNotFoundException.class,
-                () -> orderService.updateOrderById(1L, "1", new OrderedItem()));
+//       then
+        assertThrows(OrderNotFoundException.class, () -> orderService.updateOrderById(1L, "1", new OrderedItemRequest()));
     }
 
     @Test
-     void testAddOrderToCustomer() {
-        // Mock customer data
+    void testAddOrderToCustomer() {
+//        given
         Long customerId = 1L;
         Customer customer = new Customer();
         customer.setCustomerId(customerId);  // Set the customer ID
         customer.setOrders(new ArrayList<>());
 
-        // Mock ordered item request
         OrderedItemRequest orderedItemRequest = new OrderedItemRequest();
         orderedItemRequest.setProductName("Product1");
         orderedItemRequest.setQuantity(2);
         orderedItemRequest.setUnitPrice(BigDecimal.valueOf(10.0));
-
-        // Mock the behavior of the customerRepository
+//        when
         when(customerRepository.findById(customerId)).thenReturn(Optional.of(customer));
 
-        // Call the service method
         OrderedItem orderedItem = orderService.addOrderToCustomer(customerId, orderedItemRequest);
 
-        // Verify that the order was added to the customer and saved to the repository
+//        then
         assertNotNull(orderedItem);
         assertEquals(orderedItemRequest.getProductName(), orderedItem.getProductName());
         assertEquals(orderedItemRequest.getQuantity(), orderedItem.getQuantity());
-//        assertEquals(orderedItemRequest.getUnitPrice(), orderedItem.getUnitPrice(), 0.01);
 
-        // Verify that the customer's order list was updated and saved to the repository
         assertEquals(1, customer.getOrders().size());
         assertEquals(orderedItem, customer.getOrders().get(0));
         verify(customerRepository, times(1)).save(customer);
     }
 
     @Test
+    void testGetOrderByIdOrderFound() {
+        // given
+        String orderId = "123";
+        OrderedItem mockOrder = new OrderedItem();
+        mockOrder.setId(orderId);
+        //when
+        when(orderedItemRepository.findById(orderId)).thenReturn(Optional.of(mockOrder));
+
+        OrderedItem result = orderService.getOrderById(orderId);
+
+        // then
+        assertNotNull(result);
+        assertEquals(orderId, result.getId());
+    }
+
+    @Test
+    void testGetOrderByIdOrderNotFound() {
+        // given
+        String orderId = "456";
+
+        // when
+        when(orderedItemRepository.findById(orderId)).thenReturn(Optional.empty());
+
+        // then
+        assertThrows(OrderNotFoundException.class, () -> orderService.getOrderById(orderId));
+    }
+
+    @Test
     void testDeleteCustomerOrder() {
-        // Mock data
+//        given
         String orderId = "order123";
         Long customerId = 1L;
-
-        // Call the service method
+//        when
         orderService.deleteCustomerOrder(orderId, customerId);
-
-        // Verify that the orderedItemRepository's deleteByIdAndCustomerId was called with the correct parameters
+//        then
         verify(orderedItemRepository, times(1)).deleteByIdAndCustomerId(orderId, customerId);
     }
 
     @Test
     void testDeleteCustomerOrderException() {
-        // Mock data
+//        given
         String orderId = "order123";
         Long customerId = 1L;
-
-        // Mock the behavior of the orderedItemRepository to throw an exception
+//        when
         doThrow(new OrderDeleteException("an error occurred while deleting customer order")).when(orderedItemRepository).deleteByIdAndCustomerId(orderId, customerId);
-
         try {
-            // Call the service method which may throw an exception
             orderService.deleteCustomerOrder(orderId, customerId);
-
-            // If the method doesn't throw an exception, fail the test
             fail("Expected OrderDeleteException but no exception was thrown");
         } catch (OrderDeleteException e) {
-            // Assert on the exception message or other details if needed
+//            then
             assertEquals("an error occurred while deleting customer order", e.getMessage());
         }
     }

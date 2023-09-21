@@ -47,44 +47,9 @@ class CustomerServiceImplTest {
         MockitoAnnotations.initMocks(this);
     }
 
-    private CustomerRequest createSampleCustomerRequest() {
-        CustomerRequest customerRequest = new CustomerRequest();
-        customerRequest.setName("Mausoof");
-        customerRequest.setEmail("azam@xyz.com");
-        customerRequest.setPhoneNumber("7845545155");
-        customerRequest.setAddress("Bangalore");
-
-        OrderedItemRequest orderedItemRequest = new OrderedItemRequest();
-        orderedItemRequest.setQuantity(10);
-        orderedItemRequest.setProductName("Iphone");
-        orderedItemRequest.setUnitPrice(BigDecimal.valueOf(1500.01));
-
-        return customerRequest;
-
-    }
-
-
-    @Test
-    void createCustomerWithOrder_shouldThrowEmailExistException() {
-        when(customerRepository.existsByEmail(anyString())).thenReturn(true);
-
-        CustomerRequest customerRequest = createSampleCustomerRequest();
-        Assertions.assertThrows(CustomerCreationException.class, () -> {
-            customerService.createCustomerWithOrder(customerRequest);
-        });
-    }
-
-    @Test
-    void createCustomerWithOrder_shouldThrowPhoneExistException() {
-        when(customerRepository.existsByPhoneNumber(anyString())).thenReturn(true);
-
-        CustomerRequest customerRequest = createSampleCustomerRequest();
-        Assertions.assertThrows(CustomerCreationException.class, () -> {
-            customerService.createCustomerWithOrder(customerRequest);
-        });
-    }
     @Test
     void testCreateCustomerWithOrderAndOrderedItems() {
+//        given
         CustomerRequest customerRequest = new CustomerRequest();
         customerRequest.setName("test");
         customerRequest.setEmail("test@abc.com");
@@ -125,7 +90,7 @@ class CustomerServiceImplTest {
 
             orderedItemEntities.add(orderedItemEntity);
         }
-
+//        when
         when(customerRepository.existsByPhoneNumber(anyString())).thenReturn(false);
         when(customerRepository.existsByEmail(anyString())).thenReturn(false);
         when(customerRepository.save(any())).thenReturn(customerEntity);
@@ -133,7 +98,7 @@ class CustomerServiceImplTest {
 
         Customer result = customerService.createCustomerWithOrder(customerRequest);
 
-        // Assertions
+//        then
         assertNotNull(result);
         assertEquals(customerRequest.getEmail(), result.getEmail());
         assertEquals(customerRequest.getPhoneNumber(), result.getPhoneNumber());
@@ -143,25 +108,69 @@ class CustomerServiceImplTest {
         verify(customerRepository, times(1)).save(any());
         verify(orderedItemRepository, times(0)).saveAll(any());
     }
+
+    private CustomerRequest createSampleCustomerRequest() {
+        CustomerRequest customerRequest = new CustomerRequest();
+        customerRequest.setName("Mausoof");
+        customerRequest.setEmail("azam@xyz.com");
+        customerRequest.setPhoneNumber("7845545155");
+        customerRequest.setAddress("Bangalore");
+
+        OrderedItemRequest orderedItemRequest = new OrderedItemRequest();
+        orderedItemRequest.setQuantity(10);
+        orderedItemRequest.setProductName("Iphone");
+        orderedItemRequest.setUnitPrice(BigDecimal.valueOf(1500.01));
+
+        return customerRequest;
+    }
+
+
+    @Test
+    void createCustomerWithOrder_shouldThrowEmailExistException() {
+//        when
+        when(customerRepository.existsByEmail(anyString())).thenReturn(true);
+
+        CustomerRequest customerRequest = createSampleCustomerRequest();
+//        then
+        Assertions.assertThrows(CustomerCreationException.class, () -> {
+            customerService.createCustomerWithOrder(customerRequest);
+        });
+    }
+
+    @Test
+    void createCustomerWithOrder_shouldThrowPhoneExistException() {
+//        when
+        when(customerRepository.existsByPhoneNumber(anyString())).thenReturn(true);
+
+        CustomerRequest customerRequest = createSampleCustomerRequest();
+//        then
+        Assertions.assertThrows(CustomerCreationException.class, () -> {
+            customerService.createCustomerWithOrder(customerRequest);
+        });
+    }
+
     @Test
     void getCustomerByIdReturnsException() {
+//        given
         Customer customer = new Customer();
+//        when
         when(customerRepository.findById(anyLong())).thenReturn(Optional.empty());
+//        then
         Assertions.assertThrows(CustomerNotFoundException.class, () -> {
             customerService.getCustomerById(anyLong());
         });
     }
     @Test
     void testGetCustomerById() {
-        // Mock customer and customer ID
+//        given
         Customer customer = new Customer();
         Long customerId = 1L;
         customer.setCustomerId(customerId);
-
+//          when
         when(customerRepository.findById(customerId)).thenReturn(Optional.of(customer));
 
         Customer result = customerService.getCustomerById(customerId);
-
+//        then
         assertNotNull(result);
         assertEquals(customerId, result.getCustomerId());
 
@@ -170,17 +179,19 @@ class CustomerServiceImplTest {
 
     @Test
     void deleteCustomerByIdReturnNothing() {
-
+//        when
         when(customerRepository.findMaxCustomerId()).thenReturn(10L);
         when(customerRepository.findById(anyLong())).thenReturn(Optional.of(new Customer()));
 
         customerService.deleteCustomerById(5L);
+//        then
         verify(customerRepository).deleteById(5L);
 
     }
 
     @Test
     void updateCustomerReturnsCustomer() {
+//        given
         CustomerRequest customerRequest = new CustomerRequest();
         customerRequest.setName("Test");
         customerRequest.setEmail("test@abd.com");
@@ -191,18 +202,21 @@ class CustomerServiceImplTest {
         existingCustomer.setName("Test2");
         existingCustomer.setEmail("test2@abc.com");
         existingCustomer.setPhoneNumber("9876543210");
-
+//        when
         when(customerRepository.findById(1L)).thenReturn(Optional.of(existingCustomer));
         when(customerRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         Customer updatedCustomer = customerService.updateCustomer(1L, customerRequest);
+//        then
         assertEquals("1234567890", updatedCustomer.getPhoneNumber());
         verify(customerRepository).save(any());
     }
 
     @Test
     void testUpdateCustomer_throwsCustomerNotFoundException() {
+//        when
         when(customerRepository.save(any())).thenReturn(null);
+//        then
         Assertions.assertThrows(CustomerNotFoundException.class, () -> {
             customerService.updateCustomer(1L, new CustomerRequest());
         });
@@ -210,6 +224,7 @@ class CustomerServiceImplTest {
 
     @Test
     void findAllCustomerReturnCustomerList() {
+//        given
         Customer customer1 = new Customer();
         customer1.setCustomerId(1L);
         customer1.setName("Customer 1");
@@ -217,8 +232,10 @@ class CustomerServiceImplTest {
         Customer customer2 = new Customer();
         customer2.setCustomerId(2L);
         customer2.setName("Customer 2");
+//        when
         when(customerRepository.findAll()).thenReturn(Arrays.asList(customer1, customer2));
         List<Customer> allCustomerOrder = customerService.findAllCustomerOrder();
+//        then
         assertNotNull(allCustomerOrder);
     }
 
@@ -232,6 +249,7 @@ class CustomerServiceImplTest {
 
     @Test
      void testFindAllCustomerOrder() {
+//        given
         Customer customer1 = new Customer();
         customer1.setCustomerId(1L);
         customer1.setName("Customer 1");
@@ -239,13 +257,13 @@ class CustomerServiceImplTest {
         Customer customer2 = new Customer();
         customer2.setCustomerId(2L);
         customer2.setName("Customer 2");
-
+//        when
         Page<Customer> mockPage = new PageImpl<>(Arrays.asList(customer1, customer2));
 
         when(customerRepository.findAll(any(Pageable.class))).thenReturn(mockPage);
 
         Page<Customer> result = customerService.findAllCustomerOrder(PageRequest.of(0, 10));
-
+//        then
         assertNotNull(result);
         assertEquals(2, result.getTotalElements());
         assertEquals("Customer 1", result.getContent().get(0).getName());

@@ -30,18 +30,19 @@ public class OrderServiceImpl implements OrderService {
     /**
      * @param customerId  id of the customer
      * @param orderId     id of the order
-     * @param orderedItem details of the order item
+     * @param orderedItemRequest details of the order item
      * @return OrderedItem details of the order entity
      * @throws CustomerNotFoundException it happens when customer not found in DB.
      * @throws OrderNotFoundException    it occurs when order not found in the DB.
      */
     @Override
-    public OrderedItem updateOrderById(Long customerId, String orderId, OrderedItem orderedItem) {
+    public OrderedItem updateOrderById(Long customerId, String orderId, OrderedItemRequest orderedItemRequest) {
         Optional<Customer> optionalCustomer = customerRepository.findById(customerId);
         if (!optionalCustomer.isPresent()) {
-            log.info("customer with ID not found in DB : {}",customerId);
+            log.info("Customer with ID not found in DB: {}", customerId);
             throw new CustomerNotFoundException(CUSTOMER_NOT_FOUND.getValue() + customerId);
         }
+
         Customer existingCustomer = optionalCustomer.get();
 
         OrderedItem orderToUpdate = null;
@@ -51,15 +52,18 @@ public class OrderServiceImpl implements OrderService {
                 break;
             }
         }
+
         if (orderToUpdate == null) {
-            log.info("Order with ID not found in the DB :{}",orderId);
+            log.info("Order with ID not found in the DB: {}", orderId);
             throw new OrderNotFoundException(ORDER_NOT_FOUND.getValue() + orderId);
         }
-        //new we update the order with new info
-        orderToUpdate.setProductName(orderedItem.getProductName());
-        orderToUpdate.setQuantity(orderedItem.getQuantity());
-        orderToUpdate.setUnitPrice(orderedItem.getUnitPrice());
-        log.info("order with ID {} for Customer {} updated successfully",orderId,customerId);
+
+        // Update the order with new information from the OrderedItemRequest
+        orderToUpdate.setProductName(orderedItemRequest.getProductName());
+        orderToUpdate.setQuantity(orderedItemRequest.getQuantity());
+        orderToUpdate.setUnitPrice(orderedItemRequest.getUnitPrice());
+
+        log.info("Order with ID {} for Customer {} updated successfully", orderId, customerId);
         customerRepository.save(existingCustomer);
         return orderToUpdate;
     }
@@ -93,6 +97,17 @@ public class OrderServiceImpl implements OrderService {
         } else {
             log.error("error occurred while creating OrderItems ");
             throw new CustomerNotFoundException(CUSTOMER_NOT_FOUND.getValue() + customerId);
+        }
+    }
+    @Override
+    public OrderedItem getOrderById(String orderId) {
+        // Fetch the order by its unique ID
+        Optional<OrderedItem> optionalOrder = orderedItemRepository.findById(orderId);
+
+        if (optionalOrder.isPresent()) {
+            return optionalOrder.get();
+        } else {
+            throw new OrderNotFoundException("Order not found for ID: " + orderId);
         }
     }
 

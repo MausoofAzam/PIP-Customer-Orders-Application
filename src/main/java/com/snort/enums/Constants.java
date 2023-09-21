@@ -18,7 +18,9 @@ public enum Constants {
     EMAIL("azam@gmail.com"),
     ERROR_OCCURRED("an error occurred while deleting customer order"),
     NUMBER_EXISTS("Phone Number already exist"),
-    EMAIL_EXISTS("Email already Exist")
+    EMAIL_EXISTS("Email already Exist"),
+    USERNAME_NOT_FOUND("username not found"),
+    BAD_CREDENTIAL("Bad Credential")
     ;
 
 

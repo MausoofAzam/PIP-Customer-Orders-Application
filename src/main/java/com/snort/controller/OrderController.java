@@ -28,7 +28,7 @@ public class OrderController {
      * @return updated order details
      */
     @PutMapping("/update/{customerId}/{orderId}")
-    public ResponseEntity<OrderedItem> updateOrder(@PathVariable Long customerId, @PathVariable String orderId, @RequestBody OrderedItem orderedItem){
+    public ResponseEntity<OrderedItem> updateOrder(@PathVariable Long customerId, @PathVariable String orderId, @RequestBody OrderedItemRequest orderedItem){
         OrderedItem updatedOrder = orderService.updateOrderById(customerId, orderId, orderedItem);
         return new ResponseEntity<>(updatedOrder,HttpStatus.OK);
     }
@@ -42,6 +42,12 @@ public class OrderController {
     public ResponseEntity<OrderedItem> addCustomerOrder(@PathVariable Long customerId, @RequestBody OrderedItemRequest orderedItemRequest){
         OrderedItem orderedItem = orderService.addOrderToCustomer(customerId, orderedItemRequest);
         return new ResponseEntity<>(orderedItem,HttpStatus.CREATED);
+    }
+
+    @GetMapping("/{orderId}")
+    public ResponseEntity<OrderedItem> getOrderById(@PathVariable String orderId) {
+        OrderedItem order = orderService.getOrderById(orderId);
+        return new ResponseEntity<>(order, HttpStatus.OK);
     }
 
     /**

@@ -45,7 +45,6 @@ public class CustomerServiceImpl implements CustomerService {
 //                    checking for unique Email and phone number in the DB
             boolean isPhoneNumberExist = customerRepository.existsByPhoneNumber(customerRequest.getPhoneNumber());
             log.info("phone number exist", isPhoneNumberExist);
-            System.out.println("exist phone: " + isPhoneNumberExist);
             if (isPhoneNumberExist) {
                 log.error("Phone number already exists");
                 throw new PhoneNumberExistException(NUMBER_EXISTS.getValue());
@@ -102,9 +101,7 @@ public class CustomerServiceImpl implements CustomerService {
      */
     @Override
     public List<Customer> findAllCustomerOrder() {
-
-        List<Customer> customerList = customerRepository.findAll();
-        return customerList;
+        return customerRepository.findAll();
     }
 
     //    pagination
@@ -141,7 +138,6 @@ public class CustomerServiceImpl implements CustomerService {
     public void deleteCustomerById(Long customerId) {
 
         Optional<Long> maxCustomerIdOptional = Optional.ofNullable(customerRepository.findMaxCustomerId());
-        System.out.println("maxCustomerIdOptional" + maxCustomerIdOptional);
         Long nextAvailableCustomerId = maxCustomerIdOptional.orElse(1L);
 
         customerRepository.deleteById(customerId);
