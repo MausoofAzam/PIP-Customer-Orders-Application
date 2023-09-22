@@ -58,6 +58,7 @@ public class CustomerServiceImpl implements CustomerService {
             Customer customer = new Customer();
             //getting the updated customer id
             customer.setCustomerId(nextCustomerId);
+
             customer.setName(customerRequest.getName());
             customer.setEmail(customerRequest.getEmail());
             customer.setPhoneNumber(customerRequest.getPhoneNumber());
@@ -172,5 +173,6 @@ public class CustomerServiceImpl implements CustomerService {
 
         return customerRepository.save(existingCustomer);
     }
+
 
 }

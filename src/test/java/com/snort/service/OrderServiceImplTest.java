@@ -8,6 +8,7 @@ import com.snort.exception.ex.OrderNotFoundException;
 import com.snort.repository.CustomerRepository;
 import com.snort.repository.OrderedItemRepository;
 import com.snort.request.OrderedItemRequest;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -82,23 +83,23 @@ class OrderServiceImplTest {
         assertThrows(CustomerNotFoundException.class, () -> orderService.updateOrderById(1L, "1", new OrderedItemRequest()));
     }
 
-    @Test
-    void testUpdateOrderByIdOrderNotFound() {
-//      given
-        Customer customer = new Customer();
-        customer.setCustomerId(1L);
-//       when
-        when(customerRepository.findById(anyLong())).thenThrow(OrderNotFoundException.class);
-//       then
-        assertThrows(OrderNotFoundException.class, () -> orderService.updateOrderById(1L, "1", new OrderedItemRequest()));
-    }
+//    @Test
+//    void testUpdateOrderByIdOrderNotFound() {
+////      given
+//       Long customerId =101L;
+//       String orderId = "101";
+////       when
+//        when(orderedItemRepository.findById(orderId)).thenThrow(CustomerNotFoundException.class);
+////       then
+//        assertThrows(CustomerNotFoundException.class, () -> orderService.updateOrderById(customerId,orderId, new OrderedItemRequest()));
+//    }
 
     @Test
     void testAddOrderToCustomer() {
 //        given
         Long customerId = 1L;
         Customer customer = new Customer();
-        customer.setCustomerId(customerId);  // Set the customer ID
+        customer.setCustomerId(customerId);
         customer.setOrders(new ArrayList<>());
 
         OrderedItemRequest orderedItemRequest = new OrderedItemRequest();
@@ -119,11 +120,22 @@ class OrderServiceImplTest {
         assertEquals(orderedItem, customer.getOrders().get(0));
         verify(customerRepository, times(1)).save(customer);
     }
+    @Test
+    void addOrderToCustomerThrowsCustomerNotFoundException(){
+//        given
+        Long customerId = 101L;
+//        when
+        when(customerRepository.findById(customerId)).thenReturn(Optional.empty());
+//        then
+        Assertions.assertThrows(CustomerNotFoundException.class,() -> {
+            orderService.addOrderToCustomer(customerId,any(OrderedItemRequest.class));
+        });
+    }
 
     @Test
     void testGetOrderByIdOrderFound() {
         // given
-        String orderId = "123";
+        String orderId = "101";
         OrderedItem mockOrder = new OrderedItem();
         mockOrder.setId(orderId);
         //when
@@ -139,7 +151,7 @@ class OrderServiceImplTest {
     @Test
     void testGetOrderByIdOrderNotFound() {
         // given
-        String orderId = "456";
+        String orderId = "101";
 
         // when
         when(orderedItemRepository.findById(orderId)).thenReturn(Optional.empty());

@@ -76,7 +76,14 @@ public class CustomerController {
         log.info("size : {}, ", size);
         PageRequest pageable = PageRequest.of(page, size);
         log.info("List of All Customer : {}", pageable);
-        return customerService.findAllCustomerOrder(pageable);
+        Page<Customer> customerPage = customerService.findAllCustomerOrder(pageable);
+
+        //adding the next page link if there is next page
+        int nextPageNumber =customerPage.getNumber() + 1;
+        if (nextPageNumber < customerPage.getTotalPages()){
+            String nextPageLink = "/api/customer/getAll?page=" + nextPageNumber + "&size=" + size;
+        }
+        return customerPage;
     }
 
 
