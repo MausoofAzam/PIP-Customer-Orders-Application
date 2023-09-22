@@ -126,7 +126,7 @@ class CustomerServiceImplTest {
 
 
     @Test
-    void createCustomerWithOrder_shouldThrowEmailExistException() {
+    void createCustomerWithOrder_throwEmailExistException() {
 //        when
         when(customerRepository.existsByEmail(anyString())).thenReturn(true);
 
@@ -138,7 +138,7 @@ class CustomerServiceImplTest {
     }
 
     @Test
-    void createCustomerWithOrder_shouldThrowPhoneExistException() {
+    void createCustomerWithOrder_throwPhoneExistException() {
 //        when
         when(customerRepository.existsByPhoneNumber(anyString())).thenReturn(true);
 

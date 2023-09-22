@@ -58,7 +58,6 @@ public class OrderServiceImpl implements OrderService {
             throw new OrderNotFoundException(ORDER_NOT_FOUND.getValue() + orderId);
         }
 
-        // Update the order with new information from the OrderedItemRequest
         orderToUpdate.setProductName(orderedItemRequest.getProductName());
         orderToUpdate.setQuantity(orderedItemRequest.getQuantity());
         orderToUpdate.setUnitPrice(orderedItemRequest.getUnitPrice());
@@ -101,13 +100,12 @@ public class OrderServiceImpl implements OrderService {
     }
     @Override
     public OrderedItem getOrderById(String orderId) {
-        // Fetch the order by its unique ID
         Optional<OrderedItem> optionalOrder = orderedItemRepository.findById(orderId);
 
         if (optionalOrder.isPresent()) {
             return optionalOrder.get();
         } else {
-            throw new OrderNotFoundException("Order not found for ID: " + orderId);
+            throw new OrderNotFoundException(ORDER_NOT_FOUND.getValue() + orderId);
         }
     }
 

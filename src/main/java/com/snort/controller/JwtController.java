@@ -33,7 +33,7 @@ public class JwtController {
     @Autowired
     private JwtUtil jwtUtil;
 
-   
+
 
     @PostMapping("/token")
     public ResponseEntity<?> generateToken(@RequestBody JwtRequest jwtRequest) throws Exception {
